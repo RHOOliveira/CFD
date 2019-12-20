@@ -2,8 +2,7 @@
 class volume():
 	def __init__ (self,dx,dy, u_e, v_n):
 		import numpy as np
-		#Nx = 4
-		#Ny = 4   #<============================
+
 		rho = np.float64(1.0)
 		mi = np.float64(1.0)
 		dz = np.float64(1.0)

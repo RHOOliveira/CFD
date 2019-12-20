@@ -19,15 +19,14 @@ class fonte(volume):
 		# ghost cells
 		j = Ny
 		for i in range(1,Nx-1):
-			xp = (i - 0.5)*dx
+			xp = np.float64((i - 0.5)*dx)
 			p = i + (j-1)*Nx
-			aux = 16.0*(xp**4.0-2.0*xp**3.0+xp**2.0)
-			bp_u[p] = aux #aux
+			bp_u[p] = 2.0*(16.0*(xp**4.0-2.0*xp**3.0+xp**2.0))
 
 		self.qml_u = bp_u
-		#return(bp_u)
 
-	#def b_qml_v(self, Nx,Ny,dx,dy,dt,p_qml,vold):
+
+
 		bp_v = np.zeros((Nx*Ny,1), dtype=np.float64)
 		dz = np.float64(1.0)
 		Re = np.float64(1.0)
@@ -53,11 +52,12 @@ class fonte(volume):
 				d3g = np.float64(24.0*y)
 				G1 = np.float64(g*d3g-d1g*d2g) 
 
-				aux = 8.0/Re*(24.0*F0+2.0*d1f*d2g+d3f*g)+64.0*(F2*G1-g*d1g*F1)
+				#analisar o sinal
+				aux = -np.float64(8.0/Re*(24.0*F0+2.0*d1f*d2g+d3f*g)+64.0*(F2*G1-g*d1g*F1))  
 
-				bp_v[p] = -aux*dx*dy-0.5*(p_qml[pn]-p_qml[ps])*dx+mp/dt*vold[p]
+				bp_v[p] = -aux*dx*dy-0.5*(p_qml[pn]-p_qml[ps])*dx + mp/dt*vold[p]
+
 		self.qml_v=bp_v
-		#return(bp_v)
 
 
 

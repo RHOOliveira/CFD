@@ -91,6 +91,11 @@ class coefs(volume):
 				a[p][2]= -1.0
 				a[p][0] =  1.0
 
+		a[0][0] = 1.0
+		a[Nx-1][0] = 1.0
+		a[Nx*Ny-1][0] = 1.0
+		a[Nx*Ny-Nx][0] = 1.0		
+
 		self.ficticios_qml = a
 
 
@@ -108,11 +113,20 @@ class simplec():
 				dup[p] = dt/(rho*dx)
 				dvp[p] = dt/(rho*dy)
 
-		for i in range(1,(Nx-1)) :
+
+#nas faces
+		for i in range(1,(Nx-2)) :
 			for j in range(1,(Ny-1)):
 				p = i + j*Nx
 				pn = p + Nx
 				de[p] = 0.5*(dup[p]+dup[p+1])
+				#dn[p] = 0.5*(dvp[p]+dvp[pn])
+
+		for i in range(1,(Nx-1)) :
+			for j in range(1,(Ny-2)):
+				p = i + j*Nx
+				pn = p + Nx
+				#de[p] = 0.5*(dup[p]+dup[p+1])
 				dn[p] = 0.5*(dvp[p]+dvp[pn])	
 
 		self.du = dup
@@ -124,6 +138,7 @@ class eq_pressao(simplec):
 	def __init__ (self, Nx,Ny,rho,dt, dx,dy, u_e,v_n, plin):
 		a = np.zeros((Nx*Ny,5), dtype = np.float64)
 		bpp = np.zeros((Nx*Ny,1), dtype = np.float64)
+
 		for i in range(1,Nx-1):
 			for j in range(1, Ny-1):
 				p = i + j*Nx
@@ -137,14 +152,20 @@ class eq_pressao(simplec):
 				a[p][4] = simplec( Nx,Ny,rho,dt, dx,dy).dn[ps]*dx
 				a[p][0] = (a[p][1]+a[p][2]+a[p][3]+a[p][4])  
 
+		
+		#a[0][0] = 1.0
+		#a[Nx-1][0] = 1.0
+		#a[Nx*Ny-1][0] = 1.0
+		#a[Nx*Ny-Nx][0] = 1.0
+
 				# ghosts cell
 		#print(App)
 		#contorno leste
 		i = Ny-1
 		for j in range(1,Nx-1):
 			p = i + j*Nx
-			pw = p -1
-			pww = pw - 1
+			pw = p-1
+			pww = pw-1
 			a[p][1] = 1.0
 			a[p][0] = 1.0                #<==================
 			bpp[p] = plin[pw]-plin[pww]
@@ -178,18 +199,15 @@ class eq_pressao(simplec):
 			bpp[p] = plin[pn]-plin[pnn]
 			a[p][0] = 1.0
 
-		#App = -App
-
-
 
 		for i in range(1,Nx-1):
 			for j in range(1, Ny-1):
 				p = i + j*Nx
-				p2 = p - 2
-				p2w = p - 1
-				p2s = p - Nx
+				ps = p - Nx
+				pw = p - 1
+				pn = p + Nx
 				bpp[p] = (u_e[pw]-u_e[p])*dy+(v_n[ps]-v_n[p])*dx  # <---------- verificar indices
-
+		print(bpp)
 		self.fontes = bpp
 		self.coeficientes = a 
 
